@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FBX loader</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style type="text/css">
+		body{
+			margin:0;
+			overflow:hidden;
+		}
+		.fixedInstr{
+			position: fixed;
+			right:0;
+			top:0;
+			text-align: right;
+			margin-right:2%;
+			width:30%;
+			background-color: rgba(255,255,255,0.4);
+    		padding: 15px;
+		}
+		ul{
+			list-style-type: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="fixedInstr">
+		<p>Use the following keys to manipulate in the 3D world. To move camera around stop the rotation animation</p>
+		<ul>
+			<li>Move Forward - W</li>
+			<li>Move Backward - S</li>
+			<li>Move Right - A</li>
+			<li>Move Left - D</li>
+			<li>Move Up - Tab</li>
+			<li>Move Down - Shift</li>
+			<li>Toggle Rotate Animation - Space</li>
+		</ul>
+	</div>
+	
+	<script type="text/javascript" src="js/three.min.js"></script>
+	<script type="text/javascript" src="js/inflate.min.js"></script>
+	<script type="text/javascript" src="js/FBXLoader.js"></script>
+	<script type="text/javascript">
+		var container, controls, loader, mesh1;
+		var camera, scene, renderer, light, clock;
+		var camMoveSpeed = 1000;
+		var orbitEnabled = true;
+
+		//The target position for the camera
+		var targetPos;
+
+		//Distance of target from camera
+		var dist;
+
+		//Oribit angle 
+		var theta = -2.39;
+
+		//Camera Vector
+		var camFwd, camLeft, camUp;
+
+		//Camera Position
+		var camPos;
+
+		//Camera local axis
+		var camLocalAxis;
+
+        init();
+        animate();
+		function init() {
+			container = document.createElement( 'div' );
+			document.body.appendChild( container );
+
+			//Scene
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xffffff);
+			scene.fog = new THREE.Fog( 0xa0a0a0, 200, 100 );
+
+			//Clock obj
+			clock = new THREE.Clock();
+
+			//Camera
+			camera = new THREE.PerspectiveCamera( 43, window.innerWidth / window.innerHeight, 100 , 300000 );
+
+			camFwd = new THREE.Vector3(0, 0, -1);
+			camRight = new THREE.Vector3(1, 0, 0);
+			camUp = new THREE.Vector3(0, 1, 0);
+
+			//Scaling the cam direction vectors 
+			camFwd.multiplyScalar(camMoveSpeed);
+			camRight.multiplyScalar(camMoveSpeed);
+			camUp.multiplyScalar(camMoveSpeed);
+
+			camPos = new THREE.Vector3(0, 0, 0);
+			camPos.set(100827, 25000, -183625);
+			camera.position.set(camPos.x, camPos.y, camPos.z);
+
+			//Initializing target position vector
+			targetPos = new THREE.Vector3(52827,5000,-124625)
+			camera.lookAt(targetPos);
+
+			//Initial Distance from target
+			dist = 9000;
+			
+			//Light
+			light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+			light.position.set( 100, 2500, 100 );
+			scene.add( light );
+			light = new THREE.DirectionalLight( 0xffffff );
+			light.castShadow = true;
+			light.shadow.camera.top = 180;
+			light.shadow.camera.bottom = -100;
+			light.shadow.camera.left = -120;
+			light.shadow.camera.right = 120;
+			scene.add( light );
+
+			//Grid
+			var mesh = new THREE.Mesh( new THREE.PlaneGeometry( 0, 0 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: true } ) );
+			mesh.rotation.x = - Math.PI;
+			mesh.receiveShadow = true;
+			scene.add( mesh );
+			var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
+			grid.material.opacity = 0.2;
+			grid.material.transparent = true;
+			scene.add( grid );
+
+			// Fbx loader
+			loader = new THREE.FBXLoader();
+			loader.load( 'assets/CityRR.fbx', function ( object ){
+				mesh1 = object;
+				scene.add(mesh1);
+			});
+			
+			window.addEventListener("keydown", onWindowKeyDown, false);
+
+			//Orbit Toggle Function
+			var toggle = function() {
+			    orbitEnabled = true;
+			    return function() {
+			    if(orbitEnabled) {
+			        orbitEnabled = false;
+			        return;
+			    }
+			    orbitEnabled = true;
+			}
+			}();
+			toggle();
+
+			function onWindowKeyDown(event){
+			    var keyCode = event.which;
+			    
+			    if (keyCode == 87){
+			    	camera.position.add(camFwd);//Up
+			    }
+			    else if (keyCode == 83){ 
+			        camera.position.sub(camFwd);//Down
+			    }
+			    else if (keyCode == 65){
+			        camera.position.sub(camRight);//Left
+			    } 
+			    else if (keyCode == 68){
+			        camera.position.add(camRight);//Right
+			    } 
+			    else if (keyCode == 9){
+			        camera.position.add(camUp);//Tab
+			    }
+			    else if (keyCode == 16){	
+			        camera.position.sub(camUp);//Shift
+			    }
+			    else if (keyCode == 32){
+			    	toggle();//Space
+			    }
+			    console.log("CamPos : "+camera.position.x+","+camera.position.y+","+camera.position.z);
+			};
+
+			//Renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.shadowMap.enabled = true;
+			container.appendChild( renderer.domElement );
+			window.addEventListener( 'resize', onWindowResize, false );
+		}
+		function onWindowResize(){
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+		}
+		function animate() {
+			requestAnimationFrame( animate );
+			renderer.render( scene, camera );
+			if(orbitEnabled){
+				camera.position.set(-25079, 25000, -182609);
+				// Distance from target
+				dist = distanceVector(camera.position, targetPos);
+				if(theta <= -8.61){
+					theta = -2.39;
+				}
+				else{
+					theta-=0.001;
+				}
+				//Enable oribiting
+				camera.position.x = dist * Math.cos(theta) + targetPos.x; 
+				camera.position.y = 30000;
+				camera.position.z = dist * Math.sin(theta) + targetPos.z;
+				// Enabling lookAt
+				camera.lookAt(targetPos);
+			}
+
+		}
+		function distanceVector( v1, v2 ){
+    		var dx = v1.x - v2.x;
+    		var dy = v1.y - v2.y;
+    		var dz = v1.z - v2.z;
+
+   			return Math.sqrt( dx * dx + dy * dy + dz * dz );
+		}
+    </script>
+</body>
+</html>
