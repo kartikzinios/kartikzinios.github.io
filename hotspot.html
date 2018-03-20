@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FBX loader</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style type="text/css">
+		body{
+			margin:0;
+			overflow:hidden;
+		}
+		.fixedInstr{
+			position: fixed;
+			left:0;
+			top:0;
+			text-align: left;
+			width:30%;
+			background-color: rgba(255,255,255,0.6);
+    		padding: 15px;
+		}
+		ul{
+			list-style-type: none;
+		}
+		#panel{
+			position: fixed;
+			right:0;
+			top:0;
+			background-color: #fbfbfb;
+			padding: 15px;
+			width:40%;
+		}
+		.heading{
+			position:relative;
+			top:0;
+			border-bottom:1px solid #ccc;
+		}
+		.heading #closebtn,
+		.heading #closebtn:hover,
+		.heading #closebtn:visited,
+		.heading #closebtn:active{
+			position:absolute;
+			right:0;
+			padding:5px;
+			font-weight: bold;
+			text-decoration: none;
+			color:#000;
+		}
+
+		.heading h4{
+			padding:5px;
+			text-align: center;
+			margin:0;
+		}
+	</style>
+</head>
+<body>
+	<div class="fixedInstr">
+		<p>Use the following keys to manipulate in the 3D world. To move camera around stop the rotation animation</p>
+		<ul>
+			<li>Move Forward - W</li>
+			<li>Move Backward - S</li>
+			<li>Move Right - A</li>
+			<li>Move Left - D</li>
+			<li>Move Up - Tab</li>
+			<li>Move Down - Shift</li>
+			<li>Toggle Rotate Animation - Space</li>
+		</ul>
+	</div>
+	<div id="panel" style="display:none;">
+		<div class="heading">
+			<a id="closebtn" href="">X</a>
+			<h4>Title</h4>
+		</div>
+		<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+		tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+		quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+		consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+		cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+		proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+	</div>
+	
+	<script type="text/javascript" src="js/three.min.js"></script>
+	<script type="text/javascript" src="js/inflate.min.js"></script>
+	<script type="text/javascript" src="js/FBXLoader.js"></script>
+	<script type="text/javascript">
+		var container, controls, loader, mesh1;
+		var camera, scene, renderer, light, clock;
+		var camMoveSpeed = 1000;
+		var orbitEnabled = true;
+
+		//The target position for the camera
+		var targetPos;
+
+		//Distance of target from camera
+		var dist;
+
+		//Oribit angle 
+		var theta = -2.39;
+
+		//Camera Vector
+		var camFwd, camLeft, camUp;
+
+		//Camera Position
+		var camPos;
+
+		//Raycaster
+		var raycaster = new THREE.Raycaster();
+
+		//Mouse
+		var mouse = new THREE.Vector2();
+
+        init();
+        animate();
+		function init() {
+			container = document.createElement( 'div' );
+			document.body.appendChild( container );
+
+			//Scene
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xffffff);
+			scene.fog = new THREE.Fog( 0xa0a0a0, 200, 100 );
+
+			//Clock obj
+			clock = new THREE.Clock();
+
+			//Camera
+			camera = new THREE.PerspectiveCamera( 43, window.innerWidth / window.innerHeight, 10 , 500000 );
+
+			camFwd = new THREE.Vector3(0, 0, -1);
+			camRight = new THREE.Vector3(1, 0, 0);
+			camUp = new THREE.Vector3(0, 1, 0);
+
+			//Scaling the cam direction vectors 
+			camFwd.multiplyScalar(camMoveSpeed);
+			camRight.multiplyScalar(camMoveSpeed);
+			camUp.multiplyScalar(camMoveSpeed);
+
+			camPos = new THREE.Vector3(0, 0, 0);
+			camPos.set(100827, 25000, -183625);
+			camera.position.set(camPos.x, camPos.y, camPos.z);
+
+			//Initializing target position vector
+			targetPos = new THREE.Vector3(52827,5000,-124625)
+			camera.lookAt(targetPos);
+
+			//Initial Distance from target
+			dist = 9000;
+			
+			//Light
+			light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+			light.position.set( 100, 2500, 100 );
+			scene.add( light );
+			light = new THREE.DirectionalLight( 0xffffff );
+			light.castShadow = true;
+			light.shadow.camera.top = 180;
+			light.shadow.camera.bottom = -100;
+			light.shadow.camera.left = -120;
+			light.shadow.camera.right = 120;
+			scene.add( light );
+
+			//Grid
+			var mesh = new THREE.Mesh( new THREE.PlaneGeometry( 0, 0 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: true } ) );
+			mesh.rotation.x = - Math.PI;
+			mesh.receiveShadow = true;
+			scene.add( mesh );
+			var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
+			grid.material.opacity = 0.2;
+			grid.material.transparent = true;
+			scene.add( grid );
+
+			// Fbx loader
+			loader = new THREE.FBXLoader();
+			loader.load( 'assets/CityRR.fbx', function ( object ){
+				mesh1 = object;
+				scene.add(mesh1);
+			});
+
+			//Spherical Hotspot
+			var geometry = new THREE.SphereGeometry( 1000, 32, 32 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+			var sphere = new THREE.Mesh( geometry, material );
+			scene.add( sphere );
+			sphere.position.set(52827,25000,-124625);
+
+			function onMouseDown( event ) {
+				mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+				raycaster.setFromCamera( mouse, camera );
+				
+				// See if the ray from the camera into the world hits one of our meshes
+				var intersects = raycaster.intersectObject( sphere );
+				
+				// Show Panel
+				if ( intersects.length > 0 ) {
+					document.getElementById("panel").style.display = "block";
+	 			}
+			}
+			//Hide panel
+			document.getElementById('closebtn').addEventListener('click', function (event) {
+				event.preventDefault()
+				document.getElementById("panel").style.display = "none";
+			});
+
+			//Orbit Toggle Function
+			var toggle = function() {
+			    orbitEnabled = true;
+			    return function() {
+			    if(orbitEnabled) {
+			        orbitEnabled = false;
+			        return;
+			    }
+			    orbitEnabled = true;
+			}
+			}();
+			toggle();
+
+			function onWindowKeyDown(event){
+			    var keyCode = event.which;
+			    
+			    if (keyCode == 87){
+			    	orbitEnabled = false;//Disabling orbit
+			    	camera.position.add(camFwd);//Up
+			    }
+			    else if (keyCode == 83){
+			    	orbitEnabled = false;//Disabling orbit 
+			        camera.position.sub(camFwd);//Down
+			    }
+			    else if (keyCode == 65){
+			    	orbitEnabled = false;//Disabling orbit
+			        camera.position.sub(camRight);//Left
+			    } 
+			    else if (keyCode == 68){
+			    	orbitEnabled = false;//Disabling orbit
+			        camera.position.add(camRight);//Right
+			    } 
+			    else if (keyCode == 9){
+			    	orbitEnabled = false;//Disabling orbit
+			        camera.position.add(camUp);//Tab
+			    }
+			    else if (keyCode == 16){
+			    	orbitEnabled = false;//Disabling orbit	
+			        camera.position.sub(camUp);//Shift
+			    }
+			    else if (keyCode == 32){
+			    	toggle();//Space
+			    }
+			};
+
+			//Renderer
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.shadowMap.enabled = true;
+			container.appendChild( renderer.domElement );
+
+			// Events listeners
+			window.addEventListener( 'keydown', onWindowKeyDown, false);
+			window.addEventListener( 'resize', onWindowResize, false );
+			window.addEventListener( 'mousedown', onMouseDown, false );
+
+		}
+		function onWindowResize(){
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+		}
+		function animate() {
+			requestAnimationFrame( animate );
+			renderer.render( scene, camera );
+			if(orbitEnabled){
+				camera.position.set(-25079, 25000, -182609);
+				// Distance from target
+				dist = distanceVector(camera.position, targetPos);
+				if(theta <= -8.61){
+					theta = -2.39;
+				}
+				else{
+					theta-=0.001;
+				}
+				//Enable oribiting
+				camera.position.x = dist * Math.cos(theta) + targetPos.x; 
+				camera.position.y = 30000;
+				camera.position.z = dist * Math.sin(theta) + targetPos.z;
+				// Enabling lookAt
+				camera.lookAt(targetPos);
+			}
+
+		}
+		function distanceVector( v1, v2 ){
+    		var dx = v1.x - v2.x;
+    		var dy = v1.y - v2.y;
+    		var dz = v1.z - v2.z;
+
+   			return Math.sqrt( dx * dx + dy * dy + dz * dz );
+		}
+    </script>
+</body>
+</html>
