@@ -241,7 +241,7 @@
 
 				//Orbit Controls
 				if(!orbitEnabled){
-					controls = new THREE.OrbitControls( camera );
+					controls = new THREE.OrbitControls( camera, renderer.domElement );
 					controls.target.set( targetPos.x,targetPos.y,targetPos.z );
 					controls.update();
 				}
