@@ -139,7 +139,7 @@
 				//Camera
 				camera = new THREE.PerspectiveCamera( 43, window.innerWidth / window.innerHeight, 10 , 1000000 );
 				camPos = new THREE.Vector3(-25079, 25000, -182609);
-				targetPos = new THREE.Vector3(52827,5000,-124625);
+				targetPos = new THREE.Vector3(52827,0,-124625);
 				camera.position.set(camPos.x, camPos.y, camPos.z);
 
 
@@ -174,6 +174,7 @@
 				loader = new THREE.FBXLoader();
 				loader.load( 'assets/CityRR.fbx', function ( object ) {
 					scene.add( object );
+					object.position.set(0,-10800,0);
 				} );
 
 				// Hotspot object
@@ -248,7 +249,10 @@
 				//Orbit Controls
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
 				controls.target.set( targetPos.x,targetPos.y,targetPos.z );
-				controls.update();
+				controls.panningMode = THREE.HorizontalPanning;
+				controls.minDistance = 1000;
+				controls.maxDistance = 500000;
+				controls.maxPolarAngle = Math.PI / 2;
 			}
 
 			function onWindowResize() {
@@ -310,6 +314,9 @@
 					camPos.z = dist * Math.sin(theta) + targetPos.z;
 					camera.position.set(camPos.x,camPos.y,camPos.z);
 					camera.lookAt(targetPos.x,targetPos.y,targetPos.z);
+				}
+				else{
+					controls.update();
 				}
 			}
 
