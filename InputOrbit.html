@@ -246,11 +246,9 @@
 				dist = distanceVector(camPos,targetPos);
 
 				//Orbit Controls
-				if(!orbitEnabled){
-					controls = new THREE.OrbitControls( camera, renderer.domElement );
-					controls.target.set( targetPos.x,targetPos.y,targetPos.z );
-					controls.update();
-				}
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls.target.set( targetPos.x,targetPos.y,targetPos.z );
+				controls.update();
 			}
 
 			function onWindowResize() {
