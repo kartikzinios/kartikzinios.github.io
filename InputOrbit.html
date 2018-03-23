@@ -76,7 +76,7 @@
 		#orbitBtn:active{
 			position:fixed;
 			top:0;
-			left:0;
+			left:85px;
 			margin:10px;
 			background-color:#5db84b;
 			color:#fff;
@@ -112,14 +112,15 @@
 			<input id="targetZ" type="number" name="targetZ"><br>
 			<a href="" id="cameraBtn" class="targetBtn">Change Camera Position</a>
 			<a href="" id="targetBtn" class="targetBtn">Change Target Position</a>
-			<!-- <a href="" id="hotspotBtn" class="targetBtn">Change Hotspot Position</a> -->
 		</div>
 		<script src="js/three.min.js"></script>
 		<script src="js/inflate.min.js"></script>
 		<script src="js/FBXLoader.js"></script>
 		<script src="js/OrbitControls.js"></script>
+		<script src="js/stats.min.js"></script>
+
 		<script>
-			var container, controls, loader, mesh, grid;
+			var container, stats, controls, loader, mesh, grid;
 			var camera, scene, renderer, light;
 			//Position variables
 			var targetPos, camPos;
@@ -140,6 +141,7 @@
 				camPos = new THREE.Vector3(-25079, 25000, -182609);
 				targetPos = new THREE.Vector3(52827,5000,-124625);
 				camera.position.set(camPos.x, camPos.y, camPos.z);
+
 
 				//Scene
 				scene = new THREE.Scene();
@@ -215,6 +217,10 @@
 				renderer.shadowMap.enabled = true;
 				container.appendChild( renderer.domElement );
 
+				// stats
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
 				// Toggle Camera Orbit
 				var toggle = function() {
 				    orbitEnabled = false;
@@ -257,8 +263,10 @@
 				requestAnimationFrame( animate );
 				renderer.render( scene, camera );
 
+				stats.update();
+
 				//Printing Camera position
-				document.getElementById("camPosition").innerHTML ="Camera X: "+ Math.round(camera.position.x) +" Camera Y: "+ Math.round(camera.position.y) +" Camera Z: "+ Math.round(camera.position.z)+"<br> "+"Target X: "+ Math.round(targetPos.x) +" Target Y: "+ Math.round(targetPos.y) +" Target Z: "+ Math.round(targetPos.z)+"<br> ";//+"Hotspot X: "+ Math.round(hotspotPos.x) +" Hotspot Y: "+ Math.round(hotspotPos.y) +" Hotspot Z: "+ Math.round(hotspotPos.z);
+				document.getElementById("camPosition").innerHTML ="Camera X: "+ Math.round(camera.position.x) +" Camera Y: "+ Math.round(camera.position.y) +" Camera Z: "+ Math.round(camera.position.z)+"<br> "+"Target X: "+ Math.round(targetPos.x) +" Target Y: "+ Math.round(targetPos.y) +" Target Z: "+ Math.round(targetPos.z)+"<br> ";
 
 				//Input values
 				var targetX = document.getElementById( "targetX" ).value;
@@ -273,6 +281,7 @@
 					camPos.z = targetZ;
 					camera.position.set(camPos.x,camPos.y,camPos.y);
 					dist = distanceVector(camPos,targetPos);
+
 				});
 
 				//Change Target Position 
@@ -292,7 +301,12 @@
 
 				if(orbitEnabled){
 					//Enable oribiting
-					theta -= 0.001;
+					if(theta <= -8.61){
+						theta = -2.39;
+					}
+					else{
+						theta-=0.001;
+					}
 					camPos.x = dist * Math.cos(theta) + targetPos.x; 
 					camPos.y = 25000;
 					camPos.z = dist * Math.sin(theta) + targetPos.z;
@@ -309,5 +323,6 @@
 	   			return Math.sqrt( dx * dx + dy * dy + dz * dz );
 			}
 		</script>
+
 	</body>
 </html>
