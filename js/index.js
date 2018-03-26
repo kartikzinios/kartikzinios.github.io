@@ -25,23 +25,24 @@ function init() {
 	scene.background = new THREE.Color( 0xffffff );
 
 	//Light
-	light = new THREE.HemisphereLight( 0xA9A9A9, 0xcccccc );
-	light.position.set( 0, 2000 , 0 );
+	light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
+	light.position.set( 0, -110 , 0 );
 	scene.add( light );
 	light = new THREE.DirectionalLight( 0xffffff );
-	light.position.set( 0, 2000, 100 );
-	light.castShadow = true;
-	light.shadow.camera.top = 180;
-	light.shadow.camera.bottom = -100;
-	light.shadow.camera.left = -120;
-	light.shadow.camera.right = 120;
+	light.position.set( -473.09, 334.83, 1817.54 );
+	scene.add( light );
+	light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+	light.position.set( -1079.65, 1304.26, -1971.28 );
+	scene.add( light );
+	light = new THREE.DirectionalLight( 0xffffff, 0.6 );
+	light.position.set( 2377.38, 785.49, 366.78 );
 	scene.add( light );
 
 	// FBX Model
 	loader = new THREE.FBXLoader();
 	loader.load( 'assets/vulcan.fbx', function ( object ) {
 		scene.add( object );
-		object.position.set(0,-100,0);
+		object.position.set(0,0,0);
 
 	},function(){
 		setTimeout(function(){
@@ -125,7 +126,7 @@ function init() {
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
 	controls.panningMode = THREE.HorizontalPanning;
-	controls.minDistance = 0;
+	controls.minDistance = 100;
 	controls.maxDistance = 3000;
 	controls.maxPolarAngle = Math.PI / 2;
 
