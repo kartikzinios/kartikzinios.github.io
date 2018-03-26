@@ -14,7 +14,7 @@ function init() {
 	document.body.appendChild( container );
 
 	//Camera
-	camera = new THREE.PerspectiveCamera( 43, window.innerWidth / window.innerHeight, 10 , 10000 );
+	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 100 , 10000 );
 	camPos = new THREE.Vector3(1326,300,-1642);
 	targetPos = new THREE.Vector3(1362,20,-712);
 	camera.position.set(camPos.x, camPos.y, camPos.z);
@@ -22,7 +22,7 @@ function init() {
 
 	//Scene
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color( 0xffffff );
+	scene.background = new THREE.Color( 0xaaaaaa );
 
 	//Light
 	light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
