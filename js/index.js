@@ -8,7 +8,6 @@ var orbitEnabled = false, dist, theta = -2.20;
 var hotspotPos, geometry, material, sphere, raycaster, mouse;
 
 init();
-animate();
 
 function init() {
 	container = document.createElement( 'div' );
@@ -129,6 +128,8 @@ function init() {
 	controls.minDistance = 0;
 	controls.maxDistance = 3000;
 	controls.maxPolarAngle = Math.PI / 2;
+
+	animate();
 }
 
 function onWindowResize() {
