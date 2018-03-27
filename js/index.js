@@ -1,5 +1,5 @@
 var container, stats, controls, loader, mesh, grid;
-var camera, scene, renderer, light;
+var camera, scene, renderer, light, hotspot;
 //Position variables
 var targetPos, camPos;
 //Orbit variables
@@ -14,7 +14,7 @@ function init() {
 	document.body.appendChild( container );
 
 	//Camera
-	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 100 , 10000 );
+	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1 , 10000 );
 	camPos = new THREE.Vector3(1326,300,-1642);
 	targetPos = new THREE.Vector3(1362,20,-712);
 	camera.position.set(camPos.x, camPos.y, camPos.z);
@@ -22,7 +22,7 @@ function init() {
 
 	//Scene
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color( 0xaaaaaa );
+	scene.background = new THREE.Color( 0xaaaaaa);
 
 	//Light
 	light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
@@ -51,26 +51,28 @@ function init() {
 	},function(error){
 		console.log("There is an error loading the fbx model");
 	});
-
-
+	
 	// Hotspot object
-	// hotspotPos = new THREE.Vector3(1362,100,-712);
-	hotspotPos = new THREE.Vector3(1100,-50,-900);
+	hotspotPos = new THREE.Vector3(1110,-80,-915);
 	raycaster = new THREE.Raycaster();
 	mouse = new THREE.Vector2();
-	geometry = new THREE.SphereGeometry( 10, 32, 32 );
-	material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-	sphere = new THREE.Mesh( geometry, material );
-	scene.add( sphere );
-	sphere.position.set(hotspotPos.x, hotspotPos.y, hotspotPos.z);
+	material = new THREE.MeshBasicMaterial( {
+		map: new THREE.TextureLoader().load( 'assets/hotspot.png' ),
+		side: THREE.DoubleSide
+	});
+	geometry = new THREE.PlaneGeometry( 32, 32 );
+	hotspot = new THREE.Mesh(geometry, material);
+	scene.add( hotspot );
+	hotspot.position.set(hotspotPos.x, hotspotPos.y, hotspotPos.z);
+	hotspot.rotation.x =  Math.PI /2;
 
 	function onMouseDown( event ) {
 		mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
 		mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 		raycaster.setFromCamera( mouse, camera );
-		
+
 		// See if the ray from the camera into the world hits one of our meshes
-		var intersects = raycaster.intersectObject( sphere );
+		var intersects = raycaster.intersectObject( hotspot );
 		
 		// Show Panel
 		if ( intersects.length > 0 ) {
@@ -126,7 +128,7 @@ function init() {
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
 	controls.panningMode = THREE.HorizontalPanning;
-	controls.minDistance = 100;
+	controls.minDistance = 0;
 	controls.maxDistance = 3000;
 	controls.maxPolarAngle = Math.PI / 2;
 
