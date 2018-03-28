@@ -15,8 +15,8 @@ function init() {
 
 	//Camera
 	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1 , 10000 );
-	camPos = new THREE.Vector3(1326,300,-1642);
-	targetPos = new THREE.Vector3(1362,20,-712);
+	camPos = new THREE.Vector3(1300,300,-1210);
+	targetPos = new THREE.Vector3(1205,20,-590);
 	camera.position.set(camPos.x, camPos.y, camPos.z);
 
 
@@ -39,21 +39,17 @@ function init() {
 	scene.add( light );
 
 	// FBX Model
-	loader = new THREE.FBXLoader();
+	var manager = new THREE.LoadingManager();
+	loader = new THREE.FBXLoader(manager);
 	loader.load( 'assets/vulcan.fbx', function ( object ) {
 		scene.add( object );
-		object.position.set(0,0,0);
-
-	},function(){
-		setTimeout(function(){
-			document.getElementById("overlay").style.display = "none";
-		},5000);
-	},function(error){
-		console.log("There is an error loading the fbx model");
+		object.position.set(0,-100,0);
 	});
-	
+	manager.onLoad(function(){
+		document.getElementById("overlay").style.display = "none";
+	});
 	// Hotspot object
-	hotspotPos = new THREE.Vector3(1110,-80,-915);
+	hotspotPos = new THREE.Vector3(1110,-84,-915);
 	raycaster = new THREE.Raycaster();
 	mouse = new THREE.Vector2();
 	material = new THREE.MeshBasicMaterial( {
@@ -196,6 +192,7 @@ function animate() {
 		camera.lookAt(targetPos.x,targetPos.y,targetPos.z);
 	}
 	else{
+		controls.target.set( targetPos.x,targetPos.y,targetPos.z );
 		controls.update();
 	}
 }
