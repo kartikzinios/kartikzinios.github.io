@@ -45,9 +45,9 @@ function init() {
 		scene.add( object );
 		object.position.set(0,-100,0);
 	});
-	manager.onLoad(function(){
+	manager.onLoad = function(){
 		document.getElementById("overlay").style.display = "none";
-	});
+	}
 	// Hotspot object
 	hotspotPos = new THREE.Vector3(1110,-84,-915);
 	raycaster = new THREE.Raycaster();
