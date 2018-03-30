@@ -2,6 +2,9 @@ body{
 	margin:0;
 	overflow:hidden;
 }
+.main{
+	z-index:10000;
+}
 #panel{
 	position: absolute;
 	right:0;
@@ -170,4 +173,11 @@ body{
 	100% {
 		opacity: 0;
 	}
+}
+.panelContainer{
+    background: #fff;
+    color: #000;
+    font-size: 14px;
+    padding: 15px;
+    right:0;
 }

@@ -11,35 +11,57 @@
 		<div id="overlay">
 			<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
 		</div>
-		<a href="" id="orbitBtn">Orbit Off</a>
-		<div id="panel">
-			<div class="heading">
-				<a id="closeBtn" href="">X</a>
-				<h4>Title</h4>
+		<div class="main">
+			<a href="" id="orbitBtn">Orbit Off</a>
+			<div id="panel">
+				<div class="heading">
+					<a id="closeBtn" href="">X</a>
+					<h4>Title</h4>
+				</div>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+				tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+				quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+				consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+				cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+				proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 			</div>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-			quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-			cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-			proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-		</div>
-		<h3 id="camPosition"></h3>
-		<div id="targetPosition">
-			<label for="targetX">Target X</label>
-			<input id="targetX" type="number" name="targetX"><br>
-			<label for="targetY">Target Y</label>
-			<input id="targetY" type="number" name="targetY"><br>
-			<label for="targetZ">Target Z</label>
-			<input id="targetZ" type="number" name="targetZ"><br>
-			<a href="" id="cameraBtn" class="targetBtn">Change Camera Position</a>
-			<a href="" id="targetBtn" class="targetBtn">Change Target Position</a>
+			<h3 id="camPosition"></h3>
+			<div id="targetPosition">
+				<div id="cameraPos">
+					<label for="cameraX">Camera X</label>
+					<input id="cameraX" type="number" name="cameraX"><br>
+					<label for="cameraY">Camera Y</label>
+					<input id="cameraY" type="number" name="cameraY"><br>
+					<label for="cameraZ">Camera Z</label>
+					<input id="cameraZ" type="number" name="cameraZ"><br>
+					<a href="" id="cameraBtn" class="targetBtn">Change Camera Position</a>
+				</div>
+				<div id="lookatPos">
+					<label for="lookatX">LookAt X</label>
+					<input id="lookatX" type="number" name="lookatX"><br>
+					<label for="lookatY">LookAt Y</label>
+					<input id="lookatY" type="number" name="lookatY"><br>
+					<label for="lookatZ">LookAt Z</label>
+					<input id="lookatZ" type="number" name="lookatZ"><br>
+					<a href="" id="lookatBtn" class="targetBtn">Change Camera Lookat Position</a>
+				</div>
+				<div id="lookatPos">
+					<label for="targetX">Target X</label>
+					<input id="targetX" type="number" name="targetX"><br>
+					<label for="targetY">Target Y</label>
+					<input id="targetY" type="number" name="targetY"><br>
+					<label for="targetZ">Target Z</label>
+					<input id="targetZ" type="number" name="targetZ"><br>
+					<a href="" id="targetBtn" class="targetBtn">Change Controls Target Position</a>
+				</div>
+			</div>
 		</div>
 		<script src="js/three.min.js"></script>
 		<script src="js/inflate.min.js"></script>
 		<script src="js/FBXLoader.js"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/stats.min.js"></script>
+		<script src="js/CSS3DRenderer.js"></script>
 		<script src="js/index.js"></script>
 	</body>
 </html>

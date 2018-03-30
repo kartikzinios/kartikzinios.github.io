@@ -6,8 +6,11 @@ var targetPos, camPos;
 var orbitEnabled = false, dist, theta = -2.20;
 //Hotspot variables
 var hotspotPos, geometry, material, sphere, raycaster, mouse;
+//CSS3D variables
+var scene2,renderer2;
 
 init();
+animate();
 
 function init() {
 	container = document.createElement( 'div' );
@@ -17,12 +20,15 @@ function init() {
 	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1 , 10000 );
 	camPos = new THREE.Vector3(1300,300,-1210);
 	targetPos = new THREE.Vector3(1205,20,-590);
+	lookatPos = new THREE.Vector3(1205,20,-590);
 	camera.position.set(camPos.x, camPos.y, camPos.z);
-
 
 	//Scene
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0xaaaaaa);
+
+	//CSS3D Scene
+    scene2 = new THREE.Scene();
 
 	//Light
 	light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
@@ -62,6 +68,27 @@ function init() {
 	hotspot.position.set(hotspotPos.x, hotspotPos.y, hotspotPos.z);
 	hotspot.rotation.x =  Math.PI /2;
 
+	//CSS3D Panel HTML
+    element = document.createElement('div');
+    element.innerHTML = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit';
+    element.className = 'panelContainer';
+
+    //CSS3D Panel Object
+    div = new THREE.CSS3DObject(element);
+    div.position.x = -250;
+    div.position.y = 0;
+    div.position.z = -915;
+    div.rotation.y = Math.PI + 0.5;
+    scene2.add(div);
+    // div.lookAt(camera.position.x, div.position.y,camera.position.z);
+    
+    //CSS3D Renderer
+    renderer2 = new THREE.CSS3DRenderer();
+    renderer2.setSize(window.innerWidth, window.innerHeight);
+    renderer2.domElement.style.position = 'absolute';
+    renderer2.domElement.style.top = 0;
+    document.body.appendChild(renderer2.domElement);
+
 	function onMouseDown( event ) {
 		mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
 		mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
@@ -80,7 +107,6 @@ function init() {
 		event.preventDefault();
 		document.getElementById("panel").style.display = "none";
 	});
-
 	//Events
 	window.addEventListener( 'resize', onWindowResize, false );
 	window.addEventListener( 'mousedown', onMouseDown, false );
@@ -89,6 +115,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.domElement.style.zIndex = 5;
 	renderer.shadowMap.enabled = true;
 	container.appendChild( renderer.domElement );
 
@@ -118,17 +145,17 @@ function init() {
 		toggle();
 	});
 
-	dist = distanceVector(camPos,targetPos);
+	dist = distanceVector(camPos,lookatPos);
 
 	//Orbit Controls
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
 	controls.panningMode = THREE.HorizontalPanning;
 	controls.minDistance = 0;
 	controls.maxDistance = 3000;
 	controls.maxPolarAngle = Math.PI / 2;
-
-	animate();
+	// controls.enabled = false;
+	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
+	controls.update();
 }
 
 function onWindowResize() {
@@ -139,43 +166,10 @@ function onWindowResize() {
 
 function animate() {
 	requestAnimationFrame( animate );
+	renderer2.render(scene2, camera);
 	renderer.render( scene, camera );
 
 	stats.update();
-
-	//Printing Camera position
-	document.getElementById("camPosition").innerHTML ="Camera X: "+ Math.round(camera.position.x) +" Camera Y: "+ Math.round(camera.position.y) +" Camera Z: "+ Math.round(camera.position.z)+"<br> "+"Target X: "+ Math.round(targetPos.x) +" Target Y: "+ Math.round(targetPos.y) +" Target Z: "+ Math.round(targetPos.z)+"<br> ";
-
-	//Input values
-	var targetX = document.getElementById( "targetX" ).value;
-	var targetY = document.getElementById( "targetY" ).value;
-	var targetZ = document.getElementById( "targetZ" ).value;
-
-	//Change Camera Position
-	document.getElementById("cameraBtn").addEventListener('click', function (event) {
-		event.preventDefault();
-		camPos.x = targetX;
-		camPos.y = targetY;
-		camPos.z = targetZ;
-		camera.position.set(camPos.x,camPos.y,camPos.y);
-		dist = distanceVector(camPos,targetPos);
-
-	});
-
-	//Change Target Position 
-	document.getElementById("targetBtn").addEventListener('click', function (event) {
-		event.preventDefault();
-		targetPos.x = targetX;
-		targetPos.y = targetY;
-		targetPos.z = targetZ;
-		if(!orbitEnabled){
-			controls.target.set(targetPos.x,targetPos.y,targetPos.z);
-		}
-		else{
-			camera.lookAt(targetPos.x,targetPos.y,targetPos.z);
-		}
-		dist = distanceVector(camPos,targetPos);
-	});
 
 	if(orbitEnabled){
 		//Enable oribiting
@@ -185,18 +179,67 @@ function animate() {
 		else{
 			theta-=0.001;
 		}
-		camPos.x = dist * Math.cos(theta) + targetPos.x; 
+		camPos.x = dist * Math.cos(theta) + lookatPos.x; 
 		camPos.y = 300;
-		camPos.z = dist * Math.sin(theta) + targetPos.z;
-		camera.position.set(camPos.x,camPos.y,camPos.z);
-		camera.lookAt(targetPos.x,targetPos.y,targetPos.z);
+		camPos.z = dist * Math.sin(theta) + lookatPos.z;
+		camera.position.set(camPos.x, camPos.y, camPos.z);
+		camera.lookAt(lookatPos.x,lookatPos.y,lookatPos.z);
+		div.rotation.y += 0.001;
+		// div.lookAt(camera.position.x, 200, camera.position.z);
+		// controls.enabled = false;
 	}
 	else{
-		controls.target.set( targetPos.x,targetPos.y,targetPos.z );
-		controls.update();
+		// controls.enabled = true;
 	}
-}
 
+	//Printing Camera position
+	document.getElementById("camPosition").innerHTML ="Camera X: "+ Math.round(camera.position.x) +" Camera Y: "+ Math.round(camera.position.y) +" Camera Z: "+ Math.round(camera.position.z)+"<br> "+"Target X: "+ Math.round(targetPos.x) +" Target Y: "+ Math.round(targetPos.y) +" Target Z: "+ Math.round(targetPos.z)+"<br> "+"LookAt X: "+ Math.round(lookatPos.x) +" LookAt Y: "+ Math.round(lookatPos.y) +" LookAt Z: "+ Math.round(lookatPos.z);
+}
+//Change Camera Position
+document.getElementById("cameraBtn").addEventListener('click', function (event) {
+	var cameraX = document.getElementById( "cameraX" ).value;
+	var cameraY = document.getElementById( "cameraY" ).value;
+	var cameraZ = document.getElementById( "cameraZ" ).value;
+	event.preventDefault();
+	camPos.x = cameraX;
+	camPos.y = cameraY;
+	camPos.z = cameraZ;
+	camera.position.set(camPos.x,camPos.y,camPos.y);
+	if(orbitEnabled){
+		dist = distanceVector(camPos,lookatPos);
+	}
+});
+
+//Change LookAt Position
+document.getElementById("lookatBtn").addEventListener('click', function (event) {
+	var lookatX = document.getElementById( "lookatX" ).value;
+	var lookatY = document.getElementById( "lookatY" ).value;
+	var lookatZ = document.getElementById( "lookatZ" ).value;
+	event.preventDefault();
+	lookatPos.x = lookatX;
+	lookatPos.y = lookatY;
+	lookatPos.z = lookatZ;			
+	camera.lookAt(lookatPos);
+});
+//Change Target Position
+document.getElementById("targetBtn").addEventListener('click', function (event) {
+	var targetX = document.getElementById( "targetX" ).value;
+	var targetY = document.getElementById( "targetY" ).value;
+	var targetZ = document.getElementById( "targetZ" ).value;
+	event.preventDefault();
+	targetPos.x = targetX;
+	targetPos.y = targetY;
+	targetPos.z = targetZ;
+	controls.target.set(targetPos);
+	controls.reset();
+	controls.update();
+	// console.log(controls.target.x);
+});
+var camToSave = {};
+camToSave.position = camera.position.clone();
+function restoreCamera(position){
+    camera.position.set(position.x, position.y, position.z);
+}
 function distanceVector( v1, v2 ){
 	var dx = v1.x - v2.x;
 	var dy = v1.y - v2.y;
