@@ -3,6 +3,8 @@ body{
 	overflow:hidden;
 }
 .main{
+	position:absolute;
+	top:0;
 	z-index:10000;
 }
 #panel{
@@ -43,7 +45,7 @@ body{
 	margin:0;
 }
 #targetPosition{
-	position:absolute;
+	position:fixed;
 	bottom:0;
 	right:0;
 	padding:15px;
