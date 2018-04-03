@@ -3,7 +3,7 @@ var camera, scene, renderer, light, hotspot;
 //Position variables
 var targetPos, camPos;
 //Orbit variables
-var orbitEnabled = false, dist, theta = -2.20;
+var orbitEnabled = true, dist, theta = -2.20;
 //Hotspot variables
 var hotspotPos, geometry, material, sphere, raycaster, mouse;
 //CSS3D variables
@@ -29,6 +29,7 @@ function init() {
 
 	//CSS3D Scene
     scene2 = new THREE.Scene();
+    scene2.background = new THREE.Color( 0xffffff);
 
 	//Light
 	light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
@@ -72,22 +73,17 @@ function init() {
     element = document.createElement('div');
     element.innerHTML = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit';
     element.className = 'panelContainer';
+    element.style.opacity = 1.0;
+    element.style.background = new THREE.Color(Math.random() * 0xff0000).getStyle();
 
     //CSS3D Panel Object
     div = new THREE.CSS3DObject(element);
-    div.position.x = -250;
+    div.position.x = 0;
     div.position.y = 0;
     div.position.z = -915;
     div.rotation.y = Math.PI + 0.5;
     scene2.add(div);
     // div.lookAt(camera.position.x, div.position.y,camera.position.z);
-    
-    //CSS3D Renderer
-    renderer2 = new THREE.CSS3DRenderer();
-    renderer2.setSize(window.innerWidth, window.innerHeight);
-    renderer2.domElement.style.position = 'absolute';
-    renderer2.domElement.style.top = 0;
-    document.body.appendChild(renderer2.domElement);
 
 	function onMouseDown( event ) {
 		mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
@@ -95,10 +91,18 @@ function init() {
 		raycaster.setFromCamera( mouse, camera );
 
 		// See if the ray from the camera into the world hits one of our meshes
-		var intersects = raycaster.intersectObject( hotspot );
+		var intersects = raycaster.intersectObjects( scene.children,true );
 		
 		// Show Panel
 		if ( intersects.length > 0 ) {
+			console.log(intersects);
+			console.log(intersects[0].point)
+			var geometry = new THREE.BoxGeometry( 10, 10, 10 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+			var cube = new THREE.Mesh( geometry, material );
+			cube.position.set(intersects[0].point.x,-50,intersects[0].point.z);
+			cube.scale=intersects[0].distance;
+			scene.add( cube );
 			document.getElementById("panel").style.display = "block";
 		}
 	}
@@ -111,13 +115,22 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize, false );
 	window.addEventListener( 'mousedown', onMouseDown, false );
 
+	//CSS3D Renderer
+    renderer2 = new THREE.CSS3DRenderer();
+    renderer2.setSize(window.innerWidth, window.innerHeight);
+    renderer2.domElement.style.position = 'absolute';
+    renderer2.domElement.style.top = 0;
+
 	// Renderer
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.domElement.style.zIndex = 5;
+	renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.top = 0;
+	renderer.domElement.style.zIndex = 1;
 	renderer.shadowMap.enabled = true;
-	container.appendChild( renderer.domElement );
+	renderer2.domElement.appendChild(renderer.domElement);
+	container.appendChild(renderer2.domElement);
 
 	// stats
 	stats = new Stats();
@@ -155,7 +168,7 @@ function init() {
 	controls.maxPolarAngle = Math.PI / 2;
 	// controls.enabled = false;
 	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
-	controls.update();
+	// controls.update();
 }
 
 function onWindowResize() {
@@ -166,8 +179,8 @@ function onWindowResize() {
 
 function animate() {
 	requestAnimationFrame( animate );
-	renderer2.render(scene2, camera);
 	renderer.render( scene, camera );
+	renderer2.render(scene2, camera);
 
 	stats.update();
 
@@ -185,8 +198,6 @@ function animate() {
 		camera.position.set(camPos.x, camPos.y, camPos.z);
 		camera.lookAt(lookatPos.x,lookatPos.y,lookatPos.z);
 		div.rotation.y += 0.001;
-		// div.lookAt(camera.position.x, 200, camera.position.z);
-		// controls.enabled = false;
 	}
 	else{
 		// controls.enabled = true;
