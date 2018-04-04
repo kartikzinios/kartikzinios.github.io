@@ -3,12 +3,11 @@ var camera, scene, renderer, light, hotspot;
 //Position variables
 var targetPos, camPos;
 //Orbit variables
-var orbitEnabled = true, dist, theta = -2.20;
+var orbitEnabled = false, dist, theta = -2.20;
 //Hotspot variables
-var hotspotPos, geometry, material, sphere, raycaster, mouse;
-//CSS3D variables
-var scene2,renderer2;
-
+var hotspotPos, geometry, material, sphere, raycaster,raycaster2, mouse;
+var scene2;
+var renderer2;
 init();
 animate();
 
@@ -26,10 +25,6 @@ function init() {
 	//Scene
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0xaaaaaa);
-
-	//CSS3D Scene
-    scene2 = new THREE.Scene();
-    scene2.background = new THREE.Color( 0xffffff);
 
 	//Light
 	light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
@@ -57,6 +52,7 @@ function init() {
 	}
 	// Hotspot object
 	hotspotPos = new THREE.Vector3(1110,-84,-915);
+	hotspotPos1 = new THREE.Vector3(1110,134,-915);
 	raycaster = new THREE.Raycaster();
 	mouse = new THREE.Vector2();
 	material = new THREE.MeshBasicMaterial( {
@@ -68,69 +64,27 @@ function init() {
 	scene.add( hotspot );
 	hotspot.position.set(hotspotPos.x, hotspotPos.y, hotspotPos.z);
 	hotspot.rotation.x =  Math.PI /2;
-
-	//CSS3D Panel HTML
-    element = document.createElement('div');
-    element.innerHTML = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit';
-    element.className = 'panelContainer';
-    element.style.opacity = 1.0;
-    element.style.background = new THREE.Color(Math.random() * 0xff0000).getStyle();
-
-    //CSS3D Panel Object
-    div = new THREE.CSS3DObject(element);
-    div.position.x = 0;
-    div.position.y = 0;
-    div.position.z = -915;
-    div.rotation.y = Math.PI + 0.5;
-    scene2.add(div);
-    // div.lookAt(camera.position.x, div.position.y,camera.position.z);
-
-	function onMouseDown( event ) {
-		mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-		mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
-		raycaster.setFromCamera( mouse, camera );
-
-		// See if the ray from the camera into the world hits one of our meshes
-		var intersects = raycaster.intersectObjects( scene.children,true );
-		
-		// Show Panel
-		if ( intersects.length > 0 ) {
-			console.log(intersects);
-			console.log(intersects[0].point)
-			var geometry = new THREE.BoxGeometry( 10, 10, 10 );
-			var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-			var cube = new THREE.Mesh( geometry, material );
-			cube.position.set(intersects[0].point.x,-50,intersects[0].point.z);
-			cube.scale=intersects[0].distance;
-			scene.add( cube );
-			document.getElementById("panel").style.display = "block";
-		}
-	}
-	//Hide panel
-	document.getElementById('closeBtn').addEventListener('click', function (event) {
-		event.preventDefault();
-		document.getElementById("panel").style.display = "none";
+	material1 = new THREE.MeshBasicMaterial( {
+		map: new THREE.TextureLoader().load( 'assets/hotspot.png' ),
+		side: THREE.DoubleSide
 	});
+	geometry1 = new THREE.PlaneGeometry( 32, 32 );
+	hotspot1 = new THREE.Mesh(geometry, material);
+	hotspot1.position.set(hotspotPos1.x, hotspotPos1.y, hotspotPos1.z);
+	hotspot1.rotation.y = Math.PI + 0.5;
+	
+
 	//Events
 	window.addEventListener( 'resize', onWindowResize, false );
 	window.addEventListener( 'mousedown', onMouseDown, false );
-
-	//CSS3D Renderer
-    renderer2 = new THREE.CSS3DRenderer();
-    renderer2.setSize(window.innerWidth, window.innerHeight);
-    renderer2.domElement.style.position = 'absolute';
-    renderer2.domElement.style.top = 0;
 
 	// Renderer
 	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
-	renderer.domElement.style.position = 'absolute';
-    renderer.domElement.style.top = 0;
-	renderer.domElement.style.zIndex = 1;
+	renderer.domElement.style.zIndex = 5;
 	renderer.shadowMap.enabled = true;
-	renderer2.domElement.appendChild(renderer.domElement);
-	container.appendChild(renderer2.domElement);
+	document.body.appendChild(renderer.domElement);
 
 	// stats
 	stats = new Stats();
@@ -160,15 +114,37 @@ function init() {
 
 	dist = distanceVector(camPos,lookatPos);
 
-	//Orbit Controls
-	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	//CSS3D Scene
+    scene2 = new THREE.Scene();
+
+    //HTML
+    element = document.createElement('div');
+    element.innerHTML = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit';
+    element.className = 'three-div';
+
+    //CSS Object
+    div = new THREE.CSS3DObject(element);
+    div.position.x = 1100;
+    div.position.y = 0;
+    div.position.z = -915;
+    div.rotation.y = Math.PI + 0.5;
+    
+
+    //CSS3D Renderer
+    renderer2 = new THREE.CSS3DRenderer();
+    renderer2.setSize(window.innerWidth, window.innerHeight);
+    renderer2.domElement.style.position = 'absolute';
+    renderer2.domElement.style.top = 0;
+    renderer2.domElement.style.zIndex = 0;
+    document.body.appendChild(renderer2.domElement);
+
+    //Orbit Controls
+	controls = new THREE.OrbitControls( camera, renderer2.domElement );
+	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
 	controls.panningMode = THREE.HorizontalPanning;
 	controls.minDistance = 0;
 	controls.maxDistance = 3000;
 	controls.maxPolarAngle = Math.PI / 2;
-	// controls.enabled = false;
-	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
-	// controls.update();
 }
 
 function onWindowResize() {
@@ -198,28 +174,12 @@ function animate() {
 		camera.position.set(camPos.x, camPos.y, camPos.z);
 		camera.lookAt(lookatPos.x,lookatPos.y,lookatPos.z);
 		div.rotation.y += 0.001;
-	}
-	else{
-		// controls.enabled = true;
+		hotspot1.rotation.y += 0.001;
 	}
 
 	//Printing Camera position
-	document.getElementById("camPosition").innerHTML ="Camera X: "+ Math.round(camera.position.x) +" Camera Y: "+ Math.round(camera.position.y) +" Camera Z: "+ Math.round(camera.position.z)+"<br> "+"Target X: "+ Math.round(targetPos.x) +" Target Y: "+ Math.round(targetPos.y) +" Target Z: "+ Math.round(targetPos.z)+"<br> "+"LookAt X: "+ Math.round(lookatPos.x) +" LookAt Y: "+ Math.round(lookatPos.y) +" LookAt Z: "+ Math.round(lookatPos.z);
+	document.getElementById("camPosition").innerHTML ="Camera X: "+ Math.round(camera.position.x) +" Camera Y: "+ Math.round(camera.position.y) +" Camera Z: "+ Math.round(camera.position.z)+"<br> "+"LookAt X: "+ Math.round(lookatPos.x) +" LookAt Y: "+ Math.round(lookatPos.y) +" LookAt Z: "+ Math.round(lookatPos.z);
 }
-//Change Camera Position
-document.getElementById("cameraBtn").addEventListener('click', function (event) {
-	var cameraX = document.getElementById( "cameraX" ).value;
-	var cameraY = document.getElementById( "cameraY" ).value;
-	var cameraZ = document.getElementById( "cameraZ" ).value;
-	event.preventDefault();
-	camPos.x = cameraX;
-	camPos.y = cameraY;
-	camPos.z = cameraZ;
-	camera.position.set(camPos.x,camPos.y,camPos.y);
-	if(orbitEnabled){
-		dist = distanceVector(camPos,lookatPos);
-	}
-});
 
 //Change LookAt Position
 document.getElementById("lookatBtn").addEventListener('click', function (event) {
@@ -230,30 +190,63 @@ document.getElementById("lookatBtn").addEventListener('click', function (event) 
 	lookatPos.x = lookatX;
 	lookatPos.y = lookatY;
 	lookatPos.z = lookatZ;			
-	camera.lookAt(lookatPos);
+	camera.position.set(camPos.x,camPos.y,camPos.y);
+	camera.lookAt(lookatPos.x,lookatPos.y,lookatPos.z);
+	if(orbitEnabled){
+		dist = distanceVector(camPos,lookatPos);
+	}
 });
-//Change Target Position
+//Reset Orbit Control
 document.getElementById("targetBtn").addEventListener('click', function (event) {
-	var targetX = document.getElementById( "targetX" ).value;
-	var targetY = document.getElementById( "targetY" ).value;
-	var targetZ = document.getElementById( "targetZ" ).value;
 	event.preventDefault();
-	targetPos.x = targetX;
-	targetPos.y = targetY;
-	targetPos.z = targetZ;
-	controls.target.set(targetPos);
 	controls.reset();
-	controls.update();
-	// console.log(controls.target.x);
 });
-var camToSave = {};
-camToSave.position = camera.position.clone();
-function restoreCamera(position){
-    camera.position.set(position.x, position.y, position.z);
-}
 function distanceVector( v1, v2 ){
 	var dx = v1.x - v2.x;
 	var dy = v1.y - v2.y;
 	var dz = v1.z - v2.z;
 	return Math.sqrt( dx * dx + dy * dy + dz * dz );
 }
+function onMouseDown( event ) {
+	mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+	raycaster.setFromCamera( mouse, camera );
+	// See if the ray from the camera into the world hits one of our meshes
+	var intersects = raycaster.intersectObjects( scene.children,true );
+	var intersects1 = raycaster.intersectObject( hotspot );
+	var intersects2 = raycaster.intersectObject( hotspot1 );
+
+
+	// Show Panel
+	if ( intersects.length > 0 ) {
+		console.log(intersects);
+		console.log(intersects[0].point)
+		var geometry = new THREE.BoxGeometry( 10, 10, 10 );
+		var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+		var cube = new THREE.Mesh( geometry, material );
+		cube.position.set(intersects[0].point.x,-50,intersects[0].point.z);
+		cube.scale=intersects[0].distance;
+		if(intersects1 == 0 || intersects2 == 0){
+			scene.add( cube );
+		}
+		
+		// document.getElementById("panel").style.display = "block";
+	}
+	
+	// Show Panel
+	if ( intersects1.length > 0 ) {
+		scene2.add(div);
+		scene.add( hotspot1 );
+		scene.remove( hotspot );
+	}
+	else if ( intersects2.length > 0 ) {
+		scene2.remove(div);
+		scene.remove( hotspot1 );
+		scene.add( hotspot );
+	}
+}
+//Hide panel
+document.getElementById('closeBtn').addEventListener('click', function (event) {
+	event.preventDefault();
+	document.getElementById("panel").style.display = "none";
+});
