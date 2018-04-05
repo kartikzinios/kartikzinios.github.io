@@ -17,7 +17,7 @@ function init() {
 	document.body.appendChild( container );
 
 	//Camera
-	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1 , 10000 );
+	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 10 , 10000 );
 	camPos = new THREE.Vector3(1300,300,-1210);
 	targetPos = new THREE.Vector3(1205,20,-590);
 	lookatPos = new THREE.Vector3(1205,20,-590);
@@ -25,21 +25,45 @@ function init() {
 
 	//Scene
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color( 0xaaaaaa);
+	scene.background = new THREE.Color( 0xffffff);
 
 	//Light
-	light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
-	light.position.set( 0, -110 , 0 );
+	// light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
+	// light.position.set( 0, -110 , 0 );
+	// scene.add( light );
+	light = new THREE.DirectionalLight( 0xffffff, 1.4 );
+	light.position.set( 2100, 885, 1075 );
+	light.castShadow = true;
+	light.shadow.camera.near = -50;
+	light.shadow.camera.far = 2000;
+	light.shadow.camera.right = 1000;
+	light.shadow.camera.left = -1000;
+	light.shadow.camera.top	= 1000;
+	light.shadow.camera.bottom = -1000;
 	scene.add( light );
-	light = new THREE.DirectionalLight( 0xffffff );
-	light.position.set( -473.09, 334.83, 1817.54 );
-	scene.add( light );
+	scene.add( new THREE.CameraHelper( light.shadow.camera ) );
 	light = new THREE.DirectionalLight( 0xffffff, 0.8 );
-	light.position.set( -1079.65, 1304.26, -1971.28 );
+	light.position.set( -45, 1048, -1429 );
+	light.castShadow = true;
+	light.shadow.camera.near = -50;
+	light.shadow.camera.far = 2000;
+	light.shadow.camera.right = 1000;
+	light.shadow.camera.left = -1000;
+	light.shadow.camera.top	= 1000;
+	light.shadow.camera.bottom = -1000;
 	scene.add( light );
+	scene.add( new THREE.CameraHelper( light.shadow.camera ) );
 	light = new THREE.DirectionalLight( 0xffffff, 0.6 );
-	light.position.set( 2377.38, 785.49, 366.78 );
+	light.position.set( -1780, 1398.57, 1270 );
+	light.castShadow = true;
+	light.shadow.camera.near = -50;
+	light.shadow.camera.far = 2000;
+	light.shadow.camera.right = 1000;
+	light.shadow.camera.left = -1000;
+	light.shadow.camera.top	= 1000;
+	light.shadow.camera.bottom = -1000;
 	scene.add( light );
+	scene.add( new THREE.CameraHelper( light.shadow.camera ) );
 
 	//CSS3D Scene
     scene2 = new THREE.Scene();
@@ -58,11 +82,82 @@ function init() {
 
 	// FBX Model
 	var manager = new THREE.LoadingManager();
+	//var second_manager = new THREE.LoadingManager();
 	loader = new THREE.FBXLoader(manager);
-	loader.load( 'assets/vulcan.fbx', function ( object ) {
+	loader.load( 'Content/fbx/SEA_Static.fbx', function ( object ) {
+		object.position.set(0,-100,0);
+		scene.add( object );
+		object.traverse( function ( child ) {
+			if ( child.isMesh ) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		});
+	});
+	loader.load( 'Content/fbx/Site.fbx', function ( object ) {
+		scene.add( object );
+		object.position.set(0,-100,0);
+		object.traverse( function ( child ) {
+			if ( child.isMesh ) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		});
+	});
+	loader.load( 'Content/fbx/VUL_New Building.fbx', function ( object ) {
+		scene.add( object );
+		object.position.set(0,-100,0);
+		object.traverse( function ( child ) {
+			if ( child.isMesh ) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		});
+	});
+	loader.load( 'Content/fbx/SEA_1988201155_New2020Land.fbx', function ( object ) {
+		scene.add( object );
+		object.position.set(0,-100,0);
+		object.traverse( function ( child ) {
+			if ( child.isMesh ) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		});
+	});
+	loader.load( 'Content/fbx/SEA_New Property.fbx', function ( object ) {
+		scene.add( object );
+		object.position.set(0,-100,0);
+		object.traverse( function ( child ) {
+			if ( child.isMesh ) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		});
+	});
+	loader.load( 'Content/fbx/SEA_SLUTransit_New2020Land.fbx', function ( object ) {
+		scene.add( object );
+		object.position.set(0,-100,0);
+		object.traverse( function ( child ) {
+			if ( child.isMesh ) {
+				child.castShadow = true;
+				child.receiveShadow = true;
+			}
+		});
+	});
+	//old builds below
+	/*loader.load( 'Content/fbx/VUL Land.FBX', function ( object ) {
 		scene.add( object );
 		object.position.set(0,-100,0);
 	});
+	loader.load( 'Content/fbx/VUL_Old Building.FBX', function ( object ) {
+		scene.add( object );
+		object.position.set(0,-100,0);
+	});
+		loader.load( 'Content/fbx/SEA_Old Property.FBX', function ( object ) {
+		scene.add( object );
+		object.position.set(0,-100,0);
+	});*/
+
 	manager.onLoad = function(){
 		document.getElementById("overlay").style.display = "none";
 	}
@@ -91,7 +186,7 @@ function init() {
 		side: THREE.DoubleSide
 	});
 	geometry1 = new THREE.PlaneGeometry( 32, 32 );
-	hotspot1 = new THREE.Mesh(geometry, material1);
+	hotspot1 = new THREE.Mesh(geometry1, material1);
 	hotspot1.position.set(hotspotPos1.x, hotspotPos1.y, hotspotPos1.z);
 	// hotspot1.rotation.y = Math.PI + 0.5;
 
@@ -106,11 +201,12 @@ function init() {
 	window.addEventListener( 'mousedown', onMouseDown, false );
 
 	// Webgl Renderer
-	renderer = new THREE.WebGLRenderer();
+	renderer = new THREE.WebGLRenderer({antialias : true, alpha: true});
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.domElement.style.zIndex = 5;
 	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	document.body.appendChild(renderer.domElement);
 
 	// Stats
