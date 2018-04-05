@@ -7,6 +7,36 @@ body{
 	top:0;
 	z-index:100000;
 }
+#panel{
+	position: absolute;
+	right:0;
+	top:0;
+	background-color: #fbfbfb;
+	padding: 15px;
+	width:40%;
+	display:none;
+}
+.heading{
+	position:relative;
+	top:0;
+	border-bottom:1px solid #ccc;
+}
+#closeBtn,
+#closeBtn:hover,
+#closeBtn:visited,
+#closeBtn:active{
+	position:absolute;
+	right:0;
+	padding:5px;
+	font-weight: bold;
+	text-decoration: none;
+	color:#000;
+}
+.heading h4{
+	padding:5px;
+	text-align: center;
+	margin:0;
+}
 #camPosition{
 	position:fixed;
 	bottom:0;
@@ -21,6 +51,7 @@ body{
 	padding:15px;
 	background-color:#fff;
 	display: inline-block;
+
 }
 #targetPosition input{
 	margin:10px 0;
@@ -37,6 +68,7 @@ body{
 	border-radius:5px;
 	padding:10px;
 	font-weight: bold;
+
 }
 #orbitBtn,
 #orbitBtn:hover,
@@ -151,4 +183,23 @@ background: #fff;
 color: #000;
 font-size: 14px;
 padding: 15px;
+}
+.configButton{
+	background: #ccc;
+	color:#111;
+	font-weight: bold;
+	padding:10px;
+	cursor: pointer;
+	border-radius:5px;
+	text-align: center;
+}
+#configurationPanel{
+	display: none;
+}
+#showConfiguration{
+	position:fixed;
+	top:0;
+	right:0;
+	margin:10px;
+	margin-right:20px;
 }

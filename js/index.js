@@ -371,3 +371,12 @@ function onMouseDown( event ) {
 		scene.add(hotspot);
 	}
 }
+//Show/Hide configuration panel
+document.getElementById('showConfiguration').addEventListener('click', function () {
+	document.getElementById("configurationPanel").style.display = "block";
+	document.getElementById("showConfiguration").style.display = "none";
+});
+document.getElementById('hideConfiguration').addEventListener('click', function () {
+	document.getElementById("configurationPanel").style.display = "none";
+	document.getElementById("showConfiguration").style.display = "block";
+});

@@ -13,30 +13,34 @@
 		</div>
 		<div class="main">
 			<a href="" id="orbitBtn">Orbit Off</a>
-			<h3 id="camPosition"></h3>
-			<div id="targetPosition">
-				<div id="targetPos">
-					<a href="" id="targetBtn" class="targetBtn">Reset Orbit Controls</a>
-				</div>
-				<div id="cameraPos">
-					<label for="cameraX">Camera X</label>
-					<input id="cameraX" type="number" name="cameraX"><br>
-					<label for="cameraY">Camera Y</label>
-					<input id="cameraY" type="number" name="cameraY"><br>
-					<label for="cameraZ">Camera Z</label>
-					<input id="cameraZ" type="number" name="cameraZ"><br>
-					<a href="" id="cameraBtn" class="targetBtn">Change Camera Position</a>
-				</div>
-				<div id="lookatPos">
-					<label for="lookatX">LookAt X</label>
-					<input id="lookatX" type="number" name="lookatX"><br>
-					<label for="lookatY">LookAt Y</label>
-					<input id="lookatY" type="number" name="lookatY"><br>
-					<label for="lookatZ">LookAt Z</label>
-					<input id="lookatZ" type="number" name="lookatZ"><br>
-					<a href="" id="lookatBtn" class="targetBtn">Change Camera Lookat Position</a>
+			<div id="configurationPanel">
+				<h3 id="camPosition"></h3>
+				<div id="targetPosition">
+					<div id="targetPos">
+						<a href="" id="targetBtn" class="targetBtn">Reset Orbit Controls</a>
+					</div>
+					<div id="cameraPos">
+						<label for="cameraX">Camera X</label>
+						<input id="cameraX" type="number" name="cameraX"><br>
+						<label for="cameraY">Camera Y</label>
+						<input id="cameraY" type="number" name="cameraY"><br>
+						<label for="cameraZ">Camera Z</label>
+						<input id="cameraZ" type="number" name="cameraZ"><br>
+						<a href="" id="cameraBtn" class="targetBtn">Change Camera Position</a>
+					</div>
+					<div id="lookatPos">
+						<label for="lookatX">LookAt X</label>
+						<input id="lookatX" type="number" name="lookatX"><br>
+						<label for="lookatY">LookAt Y</label>
+						<input id="lookatY" type="number" name="lookatY"><br>
+						<label for="lookatZ">LookAt Z</label>
+						<input id="lookatZ" type="number" name="lookatZ"><br>
+						<a href="" id="lookatBtn" class="targetBtn">Change Camera Lookat Position</a>
+					</div>
+					<div id="hideConfiguration" class="configButton">Hide Configuration</div>
 				</div>
 			</div>
+			<div id="showConfiguration" class="configButton">Show Configuration</div>
 		</div>
 		<script src="js/three.min.js"></script>
 		<script src="js/inflate.min.js"></script>
