@@ -8,6 +8,7 @@ var orbitEnabled = false, dist, theta = -2.20;
 var hotspotPos, geometry, material, hotspot, geometry1, material1, hotspot1, geometry2, material2, cylinder, raycaster, mouse;
 //CSS3D variables
 var scene2, renderer2;
+var mapModel, oldModel;
 
 init();
 animate();
@@ -26,67 +27,55 @@ function init() {
 	//Scene
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0xffffff);
+	scene.fog = new THREE.Fog( 0xffffff, 2500, 5000);
 
 	//Light
-	// light = new THREE.HemisphereLight( 0xECF9FF, 0xFFF5E1 );
-	// light.position.set( 0, -110 , 0 );
-	// scene.add( light );
-	light = new THREE.DirectionalLight( 0xffffff, 1.4 );
-	light.position.set( 2100, 885, 1075 );
-	light.castShadow = true;
+	light = new THREE.DirectionalLight( 0xffffff, 1.2 ); //sun light
+	light.position.set( 2100, 1500, 1075 );
+	light.castShadow = true; 
 	light.shadow.camera.near = -50;
-	light.shadow.camera.far = 2000;
-	light.shadow.camera.right = 1000;
-	light.shadow.camera.left = -1000;
-	light.shadow.camera.top	= 1000;
-	light.shadow.camera.bottom = -1000;
+	light.shadow.camera.far = 3000
+	light.shadow.camera.right = 2000
+	light.shadow.camera.left = 0
+	light.shadow.camera.top	= 0;
+	light.shadow.camera.bottom = -2000;
+	light.shadowWith = 2048;
+	light.shadowMapHeight = 2048;
 	scene.add( light );
-	scene.add( new THREE.CameraHelper( light.shadow.camera ) );
-	light = new THREE.DirectionalLight( 0xffffff, 0.8 );
-	light.position.set( -45, 1048, -1429 );
-	light.castShadow = true;
-	light.shadow.camera.near = -50;
-	light.shadow.camera.far = 2000;
-	light.shadow.camera.right = 1000;
-	light.shadow.camera.left = -1000;
-	light.shadow.camera.top	= 1000;
-	light.shadow.camera.bottom = -1000;
+	// scene.add( new THREE.CameraHelper( light.shadow.camera ) ); //ambient light
+
+	light = new THREE.DirectionalLight( 0xffffff, 0.9 );
+	light.position.set( -45, 500, -1429 );
+	light.castShadow = false; //only sunlight cast shadow
+	scene.add( light ); 
+
+	light = new THREE.DirectionalLight( 0xffffff, 0.7 ); // ambient light
+	light.position.set( -1780, 600, 1270 );
+	light.castShadow = false; //only sunlight cast shadow
 	scene.add( light );
-	scene.add( new THREE.CameraHelper( light.shadow.camera ) );
-	light = new THREE.DirectionalLight( 0xffffff, 0.6 );
-	light.position.set( -1780, 1398.57, 1270 );
-	light.castShadow = true;
-	light.shadow.camera.near = -50;
-	light.shadow.camera.far = 2000;
-	light.shadow.camera.right = 1000;
-	light.shadow.camera.left = -1000;
-	light.shadow.camera.top	= 1000;
-	light.shadow.camera.bottom = -1000;
-	scene.add( light );
-	scene.add( new THREE.CameraHelper( light.shadow.camera ) );
 
 	//CSS3D Scene
     scene2 = new THREE.Scene();
 
     //HTML
     element = document.createElement('div');
-    element.innerHTML = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit';
+    element.innerHTML = '<strong>Allen Institute</strong><br>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis';
     element.className = 'three-div';
 
     //CSS Object
     div = new THREE.CSS3DObject(element);
-    div.position.x = 920;
-    div.position.y = 0;
+    div.position.x = 1000;
+    div.position.y = -5;
     div.position.z = -915;
     div.rotation.y = Math.PI;
 
 	// FBX Model
 	var manager = new THREE.LoadingManager();
-	//var second_manager = new THREE.LoadingManager();
 	loader = new THREE.FBXLoader(manager);
 	loader.load( 'Content/fbx/SEA_Static.fbx', function ( object ) {
 		object.position.set(0,-100,0);
 		scene.add( object );
+		oldModel = object;
 		object.traverse( function ( child ) {
 			if ( child.isMesh ) {
 				child.castShadow = true;
@@ -107,13 +96,14 @@ function init() {
 	loader.load( 'Content/fbx/VUL_New Building.fbx', function ( object ) {
 		scene.add( object );
 		object.position.set(0,-100,0);
+		mapModel = object;
 		object.traverse( function ( child ) {
 			if ( child.isMesh ) {
 				child.castShadow = true;
 				child.receiveShadow = true;
 			}
 		});
-	});
+	}); 
 	loader.load( 'Content/fbx/SEA_1988201155_New2020Land.fbx', function ( object ) {
 		scene.add( object );
 		object.position.set(0,-100,0);
@@ -143,8 +133,8 @@ function init() {
 				child.receiveShadow = true;
 			}
 		});
-	});
-	//old builds below
+	}); 
+	//old buildings below
 	/*loader.load( 'Content/fbx/VUL Land.FBX', function ( object ) {
 		scene.add( object );
 		object.position.set(0,-100,0);
@@ -169,7 +159,7 @@ function init() {
 	raycaster = new THREE.Raycaster();
 	mouse = new THREE.Vector2();
 
-	//Hotspot panel open
+	// Hotspot panel open
 	material = new THREE.MeshBasicMaterial( {
 		map: new THREE.TextureLoader().load( 'assets/hotspot.png' ),
 		side: THREE.DoubleSide
@@ -190,13 +180,13 @@ function init() {
 	hotspot1.position.set(hotspotPos1.x, hotspotPos1.y, hotspotPos1.z);
 	// hotspot1.rotation.y = Math.PI + 0.5;
 
-	//Hotspot panel cylinder
+	// Hotspot panel cylinder
 	geometry2 = new THREE.CylinderGeometry( 1, 1, 65, 32 );
 	material2 = new THREE.MeshBasicMaterial( {color: 0xffffff} );
 	cylinder = new THREE.Mesh( geometry2, material2 );
 	cylinder.position.set(cylinderPos.x,cylinderPos.y,cylinderPos.z);
 
-	//Event Listeners
+	// Event Listeners
 	window.addEventListener( 'resize', onWindowResize, false );
 	window.addEventListener( 'mousedown', onMouseDown, false );
 
@@ -245,6 +235,7 @@ function init() {
     renderer2.domElement.style.zIndex = 0;
     document.body.appendChild(renderer2.domElement);
 
+
     // Orbit Controls
 	controls = new THREE.OrbitControls( camera, renderer2.domElement, renderer.domElement );
 	controls.target.set( targetPos.x,targetPos.y,targetPos.z );
@@ -286,10 +277,10 @@ function animate() {
 		// hotspot1.rotation.y += 0.001;
 	}
 
-	//Printing Camera position
+	// Printing Camera position
 	document.getElementById("camPosition").innerHTML ="Camera X: "+ Math.round(camera.position.x) +" Camera Y: "+ Math.round(camera.position.y) +" Camera Z: "+ Math.round(camera.position.z)+"<br> "+"LookAt X: "+ Math.round(lookatPos.x) +" LookAt Y: "+ Math.round(lookatPos.y) +" LookAt Z: "+ Math.round(lookatPos.z);
 	
-	//Change Camera Position
+	// Change Camera Position
 	document.getElementById("cameraBtn").addEventListener('click', function (event) {
 		var cameraX = document.getElementById( "cameraX" ).value;
 		var cameraY = document.getElementById( "cameraY" ).value;
@@ -337,11 +328,13 @@ function onMouseDown( event ) {
 	var intersects = raycaster.intersectObjects( scene.children,true );
 	var intersects1 = raycaster.intersectObject( hotspot );
 	var intersects2 = raycaster.intersectObject( hotspot1 );
+	var highlightBuilding = mapModel.getObjectByName( "VUL_4088803385_NEW2016", true );
+	highlightBuilding.material = highlightBuilding.material.clone();
 
 
-	// Show Panel
-	// if ( intersects.length > 0 ) {
-		// console.log(intersects);
+	// Get scene intersects
+	if ( intersects.length > 0 ) {
+		// console.log(intersects[0].id);
 		// console.log(intersects[0].point)
 		// var geometry = new THREE.BoxGeometry( 10, 10, 10 );
 		// var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
@@ -351,9 +344,14 @@ function onMouseDown( event ) {
 		// if(intersects1 == 0 || intersects2 == 0){
 		// 	scene.add( cube );
 		// }
-		
-		// document.getElementById("panel").style.display = "block";
-	// }
+		document.querySelector("#buildingName").innerHTML = "Building Name: " + intersects[0].object.name;
+		mapModel.traverse( function(child) {
+			console.log(child.name);
+		});
+		oldModel.traverse( function(child) {
+			console.log(child.name);
+		});
+	}
 	
 	// Show Panel
 	if ( intersects1.length > 0 ) {
@@ -361,17 +359,19 @@ function onMouseDown( event ) {
 		scene.add(hotspot1);
 		scene.remove(hotspot);
 		scene.add(cylinder);
-		
+		highlightBuilding.material.color.setHex(0xff0000);
 	}
+
 	// Hide Panel
 	else if ( intersects2.length > 0 ) {
 		scene2.remove(div);
 		scene.remove(hotspot1);
 		scene.remove(cylinder);
 		scene.add(hotspot);
+		highlightBuilding.material.color.setHex(0xb4b4b4);
 	}
 }
-//Show/Hide configuration panel
+// Show/Hide configuration panel
 document.getElementById('showConfiguration').addEventListener('click', function () {
 	document.getElementById("configurationPanel").style.display = "block";
 	document.getElementById("showConfiguration").style.display = "none";
